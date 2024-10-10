@@ -3238,7 +3238,14 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
 - (void)deleteBackward {
     [self _updateIfNeeded];
     NSRange range = _selectedTextRange.asRange;
-    if (range.location == 0 && range.length == 0) return;
+    if (range.location == 0 && range.length == 0) {
+        if ([self.delegate respondsToSelector:@selector(textViewDidDeleteBackward:inRange:)]) {
+            [self.delegate textViewDidDeleteBackward:self inRange:range];
+        }
+        return;
+    }
+        
+        
     _state.typingAttributesOnce = NO;
     
     // test if there's 'TextBinding' before the caret
@@ -3270,6 +3277,9 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
         [self _resetRedoStack];
     }
     [self replaceRange:[YYTextRange rangeWithRange:range] withText:@""];
+    if ([self.delegate respondsToSelector:@selector(textViewDidDeleteBackward:inRange:)]) {
+        [self.delegate textViewDidDeleteBackward:self inRange:range];
+    }
 }
 
 #pragma mark - @protocol UITextInput
