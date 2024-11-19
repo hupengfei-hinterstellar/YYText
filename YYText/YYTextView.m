@@ -211,12 +211,12 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
 
 /// Update layout and selection before runloop sleep/end.
 - (void)_commitUpdate {
-#if !TARGET_INTERFACE_BUILDER
-    _state.needUpdate = YES;
-    [[YYTextTransaction transactionWithTarget:self selector:@selector(_updateIfNeeded)] commit];
-#else
+//#if !TARGET_INTERFACE_BUILDER
+//    _state.needUpdate = YES;
+//    [[YYTextTransaction transactionWithTarget:self selector:@selector(_updateIfNeeded)] commit];
+//#else
     [self _update];
-#endif
+//#endif
 }
 
 /// Update layout and selection view if needed.
@@ -359,12 +359,12 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
 
 /// Update placeholder before runloop sleep/end.
 - (void)_commitPlaceholderUpdate {
-#if !TARGET_INTERFACE_BUILDER
-    _state.placeholderNeedUpdate = YES;
-    [[YYTextTransaction transactionWithTarget:self selector:@selector(_updatePlaceholderIfNeeded)] commit];
-#else
+//#if !TARGET_INTERFACE_BUILDER
+//    _state.placeholderNeedUpdate = YES;
+//    [[YYTextTransaction transactionWithTarget:self selector:@selector(_updatePlaceholderIfNeeded)] commit];
+//#else
     [self _updatePlaceholder];
-#endif
+//#endif
 }
 
 /// Update placeholder if needed.
