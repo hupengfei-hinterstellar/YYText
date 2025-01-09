@@ -146,12 +146,12 @@ static int _YYTextKeyboardViewFrameObserverKey;
 
 + (instancetype)defaultManager {
     static YYTextKeyboardManager *mgr = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        if (!YYTextIsAppExtension()) {
-            mgr = [[self alloc] _init];
-        }
-    });
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        if (!YYTextIsAppExtension()) {
+//            mgr = [[self alloc] _init];
+//        }
+//    });
     return mgr;
 }
 
