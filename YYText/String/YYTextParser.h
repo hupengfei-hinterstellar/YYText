@@ -13,6 +13,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface YYTextChange : NSObject
+
+@property (nonatomic, assign) NSRange range;
+
+@property (nonatomic, copy) NSAttributedString *oldText;
+
+@property (nonatomic, copy) NSAttributedString *createdText;
+
+@end
+
 /**
  The YYTextParser protocol declares the required method for YYTextView and YYLabel
  to modify the text during editing.
@@ -21,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  YYTextView and YYLabel. See `YYTextSimpleMarkdownParser` and `YYTextSimpleEmoticonParser` for example.
  */
 @protocol YYTextParser <NSObject>
-@required
+@optional
 /**
  When text is changed in YYTextView or YYLabel, this method will be called.
  
@@ -34,8 +44,13 @@ NS_ASSUME_NONNULL_BEGIN
  
  @return If the 'text' is modified in this method, returns `YES`, otherwise returns `NO`.
  */
+/// 全量替换解析 适用于在任何时候都要处理全部的属性字符串
 - (BOOL)parseText:(nullable NSMutableAttributedString *)text selectedRange:(nullable NSRangePointer)selectedRange;
+/// 适用于在输入过程中处理局部的属性字符串， 当文案改变完成的时候 触发 selectedRange 表示 现在光标所处的位置 textChange表示文案的变化
+- (BOOL)parseText:(nullable NSMutableAttributedString *)text selectedRange:(nullable NSRangePointer)selectedRange textChange:(YYTextChange *) change;
 @end
+
+
 
 
 

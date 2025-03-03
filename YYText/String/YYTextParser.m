@@ -16,6 +16,10 @@
 #import "NSParagraphStyle+YYText.h"
 
 
+@implementation YYTextChange
+
+@end
+
 #pragma mark - Markdown Parser
 
 @implementation YYTextSimpleMarkdownParser {

@@ -226,6 +226,12 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
     }
 }
 
+- (void) modifyAttributeText: (void (NS_NOESCAPE ^)(NSMutableAttributedString *text))block {
+    block(_innerText);
+    [self _updateOuterProperties];
+    [self _update];
+}
+
 /// Update layout and selection view immediately.
 - (void)_update {
     _state.needUpdate = NO;
@@ -1534,6 +1540,28 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
     return NO;
 }
 
+- (BOOL)_parseTextChange:(YYTextChange *) change {
+    if (self.textParser) {
+        YYTextRange *oldTextRange = _selectedTextRange;
+        NSRange newRange = _selectedTextRange.asRange;
+        
+        [_inputDelegate textWillChange:self];
+        BOOL textChanged = [self.textParser parseText:_innerText selectedRange:&newRange textChange: change];
+        [_inputDelegate textDidChange:self];
+        
+        YYTextRange *newTextRange = [YYTextRange rangeWithRange:newRange];
+        newTextRange = [self _correctedTextRange:newTextRange];
+        
+        if (![oldTextRange isEqual:newTextRange]) {
+            [_inputDelegate selectionWillChange:self];
+            _selectedTextRange = newTextRange;
+            [_inputDelegate selectionDidChange:self];
+        }
+        return textChanged;
+    }
+    return NO;
+}
+
 /// Returns whether the text should be detected by the data detector.
 - (BOOL)_shouldDetectText {
     if (!_dataDetector) return NO;
@@ -2131,11 +2159,12 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
 - (void)setTextParser:(id<YYTextParser>)textParser {
     if (_textParser == textParser || [_textParser isEqual:textParser]) return;
     [self _setTextParser:textParser];
-    if (textParser && _text.length) {
-        [self replaceRange:[YYTextRange rangeWithRange:NSMakeRange(0, _text.length)] withText:_text];
-    }
-    [self _resetUndoAndRedoStack];
-    [self _commitUpdate];
+// 设置 textParser 时不再触发 刷新操作， 需要的话手动触发
+//    if (textParser && _text.length) {
+        //[self replaceRange:[YYTextRange rangeWithRange:NSMakeRange(0, _text.length)] withText:_text];
+//    }
+//    [self _resetUndoAndRedoStack];
+//    [self _commitUpdate];
 }
 
 - (void)setTypingAttributes:(NSDictionary *)typingAttributes {
@@ -3324,10 +3353,9 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
     [self _updateIfNeeded];
     [self _endTouchTracking];
     [self _hideMenu];
-    
+    NSRange replaceRange = _markedTextRange ? _markedTextRange.asRange : NSMakeRange(_selectedTextRange.end.offset, 0);
     if ([self.delegate respondsToSelector:@selector(textView:shouldChangeTextInRange:replacementText:)]) {
-        NSRange range = _markedTextRange ? _markedTextRange.asRange : NSMakeRange(_selectedTextRange.end.offset, 0);
-        BOOL should = [self.delegate textView:self shouldChangeTextInRange:range replacementText:markedText];
+        BOOL should = [self.delegate textView:self shouldChangeTextInRange:replaceRange replacementText:markedText];
         if (!should) return;
     }
     
@@ -3376,7 +3404,14 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
     
     [_inputDelegate selectionDidChange:self];
     [_inputDelegate textDidChange:self];
-    
+    NSAttributedString *oldText = [[NSAttributedString alloc] init];
+    if ([self.textParser respondsToSelector:@selector(parseText:selectedRange:textChange:)]) {
+        YYTextChange *change = [[YYTextChange alloc] init];
+        change.range = replaceRange;
+        change.oldText = oldText;
+        change.createdText = [_innerText attributedSubstringFromRange: NSMakeRange(replaceRange.location, markedText.length)];
+        [self _parseTextChange: change];
+    }
     [self _updateOuterProperties];
     [self _updateLayout];
     [self _updateSelectionView];
@@ -3407,7 +3442,7 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
     if (!text) text = @"";
     if (range.asRange.length == 0 && text.length == 0) return;
     range = [self _correctedTextRange:range];
-    
+    NSAttributedString *oldText = [_innerText attributedSubstringFromRange: range.asRange];
     if ([self.delegate respondsToSelector:@selector(textView:shouldChangeTextInRange:replacementText:)]) {
         BOOL should = [self.delegate textView:self shouldChangeTextInRange:range.asRange replacementText:text];
         if (!should) return;
@@ -3449,7 +3484,15 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
             [_innerText yy_setAttribute:key value:obj range:newRange];
         }];
     }
-    [self _parseText];
+    if ([self.textParser respondsToSelector:@selector(parseText:selectedRange:textChange:)]) {
+        YYTextChange *change = [[YYTextChange alloc] init];
+        change.range = range.asRange;
+        change.oldText = oldText;
+        change.createdText = [_innerText attributedSubstringFromRange: NSMakeRange(range.asRange.location, text.length)];
+        [self _parseTextChange: change];
+    } else {
+        [self _parseText];
+    }
     [self _updateOuterProperties];
     [self _update];
     
