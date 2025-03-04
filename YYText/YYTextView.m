@@ -3374,6 +3374,7 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
     
     if (_selectedTextRange.asRange.length > 0) {
         [self replaceRange:_selectedTextRange withText:@""];
+        replaceRange = NSMakeRange(0, 0);
     }
     
     [_inputDelegate textWillChange:self];
