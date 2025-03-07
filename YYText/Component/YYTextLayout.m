@@ -3349,13 +3349,13 @@ static void YYTextDrawDebug(YYTextLayout *layout, CGContextRef context, CGSize s
             if (cancel && cancel()) return;
             YYTextDrawShadow(self, context, size, point, cancel);
         }
-        if (self.needDrawUnderline && context) {
-            if (cancel && cancel()) return;
-            YYTextDrawDecoration(self, context, size, point, YYTextDecorationTypeUnderline, cancel);
-        }
         if (self.needDrawText && context) {
             if (cancel && cancel()) return;
             YYTextDrawText(self, context, size, point, cancel);
+        }
+        if (self.needDrawUnderline && context) {
+            if (cancel && cancel()) return;
+            YYTextDrawDecoration(self, context, size, point, YYTextDecorationTypeUnderline, cancel);
         }
         if (self.needDrawAttachment && (context || view || layer)) {
             if (cancel && cancel()) return;
