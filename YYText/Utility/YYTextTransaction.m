@@ -29,6 +29,7 @@ static void YYRunLoopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
         [transaction.target performSelector:transaction.selector];
 #pragma clang diagnostic pop
     }];
+    [NSObject performSelectorOnMainThread:@selector(superclass) withObject:nil waitUntilDone:NO];
 }
 
 static void YYTextTransactionSetup() {
