@@ -346,8 +346,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) CGFloat extraAccessoryViewHeight;
 
-- (void) modifyAttributeText: (void (NS_NOESCAPE ^)(NSMutableAttributedString *text))block;
+- (void)modifyAttributeText: (void (NS_NOESCAPE ^)(NSMutableAttributedString *text))block;
 
+- (void)hideSelectionDot;
+
+- (void)showSelectionDot;
 @end
 
 
