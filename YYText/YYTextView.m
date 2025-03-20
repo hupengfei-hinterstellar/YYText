@@ -2902,6 +2902,9 @@ typedef NS_ENUM(NSUInteger, YYTextMoveDirection) {
         if (action == @selector(paste:)) {
             return [self _isPasteboardContainsValidValue];
         }
+        if (action == @selector(captureTextFromCamera:)) {
+            return YES;
+        }
     } else {
         if (action == @selector(cut:)) {
             return self.isFirstResponder && self.editable;
