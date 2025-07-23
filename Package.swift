@@ -28,6 +28,8 @@ let package = Package(
                 .linkedFramework("Accelerate"),
                 .linkedFramework("MobileCoreServices")
             ]
-        )
+        ),
+        .testTarget(name: "YYTextTests",
+                   dependencies: ["YYText"]),
     ]
 )
